@@ -1,4 +1,4 @@
-# Made by Satwik Singh
+# made by Satwik Singh
 
 import pygame as pg
 import time
@@ -10,8 +10,9 @@ snake_width = 10
 scr = pg.display.set_mode((width, height))  # screen of width and height of 500 pixels
 scr.fill([247, 155, 155])              # fill the background with a color
 clock = pg.time.Clock()
-pg.display.set_caption("Snake 2.0")
-
+pg.display.set_caption("Snake")
+font = pg.font.Font('freesansbold.ttf', 32)
+text_gameover = font.render("Game Over", True, (155, 155, 155), (255, 255, 255))
 
 def update():
     pg.display.update()
@@ -24,11 +25,8 @@ def snake(Snake):
         pg.draw.rect(scr, (255,255,255), [i[0], i[1], snake_width, snake_width])
 
 def food(x, y):
-    pg.draw.rect(scr, (145,196,0), [x, y, snake_width, snake_width])
+    pg.draw.rect(scr, (165,120,167), [x, y, snake_width, snake_width])
 
-
-def Print():
-    print(left, right, up, down)
 
 def collide():  #collision detection between food and snake with margin m
     margin = 3
@@ -43,9 +41,16 @@ def collide():  #collision detection between food and snake with margin m
     if(x==xfood and y==yfood):
         return True
 
+# display text
+def disp_text(text, pos, italic = False):
+    if(not italic):
+        font.set_italic(False)
+        scr.blit(text, pos)
+    if(italic):
+        font.set_italic(True)
+        scr.blit(text, pos)
 
 
-    
 
 x = 200
 y = 200
@@ -61,6 +66,8 @@ fps = 150
 food_eaten = True
 snake_len = 1
 score = snake_len - 1
+start_timer = False
+timer_started = False
 Snake = []
 update()
 run = True
@@ -99,6 +106,7 @@ while( run ):
                 right = False
                 up = False
                 down = True
+
     # to return sanke back in screen if goes out of it
     x+=xspeed
     y+=yspeed
@@ -122,18 +130,30 @@ while( run ):
     if(food_eaten):
         snake_len+=5
 
-    # increase snake length
+    # increase snake length and quit the game if snake eates itself
     head = []
     head.append(x)
     head.append(y)
     for i in Snake[:-1]:
         if(head==i):
-            run = False
+            start_timer = True
     Snake.append(head)
     if(len(Snake)>snake_len):
         del Snake[0]
     snake(Snake)
 
+    if (start_timer):
+        xspeed=0
+        yspeed=0
+        if(not timer_started):
+            timer = pg.time.get_ticks()
+            timer_started = True
+        seconds = (pg.time.get_ticks() - timer) / 1000
+        disp_text(text_gameover, (200, 200))
+        if(seconds>2):
+            run = False
+
     update()
     clock.tick(fps)
     scr.fill([247, 155, 155])
+
